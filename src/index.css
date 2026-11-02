@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Space Grotesk', 'Inter', sans-serif;
+    --font-grotesk: 'Space Grotesk', 'Inter', sans-serif;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    background-color: #030305;
+    color: #FFFFFF;
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: #030305;
+    color: #FFFFFF;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.font-grotesk {
+  font-family: var(--font-grotesk);
+  letter-spacing: -0.02em;
+}
+
+.font-mono-tech {
+  font-family: var(--font-mono);
+}
+
+/* Signature Spline White-to-Silver Metallic Gradient Text */
+.text-spline-white {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F4F4F5 45%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Spotlight beam entrance animation (matches 21st.dev / Spline Spotlight) */
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
+
+.animate-spotlight {
+  animation: spotlight 2s ease 0.25s 1 forwards;
+}
+
+/* Custom sleek white/silver scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #030305;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Subtle spaceship coordinate grid */
+.bg-cyber-grid {
+  background-size: 64px 64px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Pure White-on-Black Spaceship Card Surface */
+.glass-monolith {
+  background: rgba(8, 8, 11, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 60px -15px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Spaceship Header Command Pill */
+.glass-pill {
+  background: rgba(12, 12, 16, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Print stylesheet for Executive CV Export */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-cv-sheet,
+  #printable-cv-sheet * {
+    visibility: visible;
+  }
+  #printable-cv-sheet {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #08080b !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+  }
+}
