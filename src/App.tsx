@@ -1,4 +1,3 @@
-import confetti from 'canvas-confetti';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -6,7 +5,6 @@ import { Sparkles } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { CertificatesSection } from './components/CertificatesSection';
 import { ContactFooterSection } from './components/ContactFooterSection';
-import { CreatorStudioDrawer } from './components/CreatorStudioDrawer';
 import { CustomCursor } from './components/CustomCursor';
 import { CVDossierSection } from './components/CVDossierSection';
 import { HeroSection } from './components/HeroSection';
@@ -25,9 +23,7 @@ import {
 } from './data/defaultPortfolioData';
 import type { CertificateItem, ProfileData } from './types/portfolio';
 import {
-  fileToDataUrl,
   loadPortfolioState,
-  resetPortfolioState,
   savePortfolioState,
 } from './utils/storage';
 
@@ -36,35 +32,20 @@ gsap.registerPlugin(ScrollTrigger);
 export const App: React.FC = () => {
   const [booted, setBooted] = useState(false);
   const [profile, setProfile] = useState<ProfileData>(DEFAULT_PROFILE_DATA);
-  const [projects, setProjects] = useState(DEFAULT_PROJECTS);
-  const [certificates, setCertificates] = useState<CertificateItem[]>(DEFAULT_CERTIFICATES);
-  const [experience, setExperience] = useState(DEFAULT_CV_EXPERIENCE);
-  const [education, setEducation] = useState(DEFAULT_CV_EDUCATION);
-  const [achievements, setAchievements] = useState(DEFAULT_CV_ACHIEVEMENTS);
+  const [projects] = useState(DEFAULT_PROJECTS);
+  const [certificates] = useState<CertificateItem[]>(DEFAULT_CERTIFICATES);
+  const [experience] = useState(DEFAULT_CV_EXPERIENCE);
+  const [education] = useState(DEFAULT_CV_EDUCATION);
+  const [achievements] = useState(DEFAULT_CV_ACHIEVEMENTS);
   const [hydrated, setHydrated] = useState(false);
 
   const [scrollProgress, setScrollProgress] = useState(0);
   const [scrollVelocity, setScrollVelocity] = useState(0);
-
-  const [studioOpen, setStudioOpen] = useState(false);
-  const [studioTab, setStudioTab] = useState<'identity' | '3d' | 'certificates' | 'cv'>('3d');
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const showToast = useCallback((msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage((prev) => (prev === msg ? null : prev));
-    }, 3600);
-  }, []);
+  const [toastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadPortfolioState().then((loaded) => {
       setProfile(loaded.profile);
-      setProjects(loaded.projects);
-      setCertificates(loaded.certificates);
-      setExperience(loaded.experience);
-      setEducation(loaded.education);
-      setAchievements(loaded.achievements);
       setHydrated(true);
     });
   }, []);
@@ -111,86 +92,6 @@ export const App: React.FC = () => {
     setProfile((prev) => ({ ...prev, ...partial }));
   }, []);
 
-  const handleUploadGlb = useCallback(
-    async (file: File) => {
-      const dataUrl = await fileToDataUrl(file);
-      setProfile((prev) => ({
-        ...prev,
-        customModelUrl: dataUrl,
-        customModelName: file.name,
-        active3DPreset: 'custom-glb',
-      }));
-      confetti({
-        particleCount: 55,
-        spread: 65,
-        origin: { y: 0.7 },
-        colors: ['#ffffff', '#d4d4d8', '#71717a'],
-      });
-      showToast(`3D Model "${file.name}" Mounted in WebGL Stage!`);
-    },
-    [showToast]
-  );
-
-  const handleUploadCvPdf = useCallback(
-    async (file: File) => {
-      const dataUrl = await fileToDataUrl(file);
-      setProfile((prev) => ({
-        ...prev,
-        cvPdfUrl: dataUrl,
-        cvFileName: file.name,
-      }));
-      confetti({
-        particleCount: 45,
-        spread: 55,
-        origin: { y: 0.7 },
-        colors: ['#ffffff', '#d4d4d8', '#71717a'],
-      });
-      showToast(`Official CV "${file.name}" Saved & Ready for Download!`);
-    },
-    [showToast]
-  );
-
-  const handleAddCertificate = useCallback(
-    (cert: CertificateItem) => {
-      setCertificates((prev) => [cert, ...prev]);
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.7 },
-        colors: ['#ffffff', '#d4d4d8', '#71717a'],
-      });
-      showToast(`Certificate "${cert.title}" Added to Vault!`);
-    },
-    [showToast]
-  );
-
-  const handleRemoveCertificate = useCallback(
-    (id: string) => {
-      setCertificates((prev) => prev.filter((c) => c.id !== id));
-      showToast('Certificate Removed from Vault.');
-    },
-    [showToast]
-  );
-
-  const handleResetAll = useCallback(async () => {
-    const fresh = await resetPortfolioState();
-    setProfile(fresh.profile);
-    setProjects(fresh.projects);
-    setCertificates(fresh.certificates);
-    setExperience(fresh.experience);
-    setEducation(fresh.education);
-    setAchievements(fresh.achievements);
-    showToast('Portfolio Reset to Studio Defaults.');
-  }, [showToast]);
-
-  const openStudioWithTab = useCallback(
-    (tab: 'identity' | '3d' | 'certificates' | 'cv' = '3d') => {
-      setStudioTab(tab);
-      setStudioOpen(true);
-    },
-    []
-  );
-
   return (
     <div className="relative min-h-screen bg-[#030305] text-white selection:bg-white/20 selection:text-white">
       <CustomCursor />
@@ -206,7 +107,6 @@ export const App: React.FC = () => {
       <Navbar
         profile={profile}
         scrollProgress={scrollProgress}
-        onOpenStudio={openStudioWithTab}
       />
 
       {/* Right-Edge Vertical Scroll Progress HUD (Desktop) */}
@@ -222,20 +122,17 @@ export const App: React.FC = () => {
       </div>
 
       <main className="relative z-10">
-        <HeroSection profile={profile} onOpenStudio={openStudioWithTab} />
+        <HeroSection profile={profile} />
 
         <Interactive3DLabSection
           profile={profile}
           onUpdateProfile={handleUpdateProfile}
-          onUploadGlb={handleUploadGlb}
         />
 
         <ProjectsHorizontalSection projects={projects} />
 
         <CertificatesSection
           certificates={certificates}
-          onAddCertificate={handleAddCertificate}
-          onRemoveCertificate={handleRemoveCertificate}
         />
 
         <CVDossierSection
@@ -244,23 +141,10 @@ export const App: React.FC = () => {
           education={education}
           achievements={achievements}
           certificates={certificates}
-          onUploadCvPdf={handleUploadCvPdf}
         />
 
-        <ContactFooterSection profile={profile} onOpenStudio={openStudioWithTab} />
+        <ContactFooterSection profile={profile} />
       </main>
-
-      <CreatorStudioDrawer
-        isOpen={studioOpen}
-        activeTab={studioTab}
-        onTabChange={setStudioTab}
-        onClose={() => setStudioOpen(false)}
-        profile={profile}
-        onUpdateProfile={handleUpdateProfile}
-        onUploadGlb={handleUploadGlb}
-        onUploadCvPdf={handleUploadCvPdf}
-        onResetAll={handleResetAll}
-      />
 
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-[300] glass-monolith px-5 py-3.5 rounded-2xl border border-white/35 shadow-[0_0_30px_rgba(255,255,255,0.2)] flex items-center gap-2.5 font-mono-tech text-xs text-white">

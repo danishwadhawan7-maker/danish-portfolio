@@ -1,7 +1,6 @@
 import {
   Award,
   Briefcase,
-  CheckCircle2,
   Cpu,
   Download,
   FileText,
@@ -10,9 +9,8 @@ import {
   MapPin,
   Phone,
   Printer,
-  Upload,
 } from 'lucide-react';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { DEFAULT_SKILL_GROUPS } from '../data/defaultPortfolioData';
 import type {
   CertificateItem,
@@ -29,7 +27,6 @@ interface CVDossierSectionProps {
   education: CVEducationItem[];
   achievements: CVAchievementItem[];
   certificates: CertificateItem[];
-  onUploadCvPdf: (file: File) => void;
 }
 
 export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
@@ -38,12 +35,8 @@ export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
   education,
   achievements,
   certificates,
-  onUploadCvPdf,
 }) => {
-  const [activeTab, setActiveTab] = useState<'experience' | 'skills' | 'education' | 'pdf'>(
-    'experience'
-  );
-  const cvInputRef = useRef<HTMLInputElement | null>(null);
+  const [activeTab, setActiveTab] = useState<'experience' | 'skills' | 'education'>('experience');
 
   const handleDownloadOrPrint = () => {
     if (profile.cvPdfUrl) {
@@ -63,20 +56,6 @@ export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
       id="cv-dossier"
       className="relative py-24 px-4 sm:px-8 border-t border-white/10"
     >
-      <input
-        ref={cvInputRef}
-        type="file"
-        accept="application/pdf"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) {
-            onUploadCvPdf(f);
-            setActiveTab('pdf');
-          }
-        }}
-      />
-
       <div className="max-w-7xl mx-auto relative z-10 space-y-12">
         {/* Top Section Header & Action Buttons */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
@@ -92,32 +71,12 @@ export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
 
           <div className="flex flex-wrap items-center gap-3">
             <button
-              onClick={() => cvInputRef.current?.click()}
-              data-cursor="UPLOAD PDF"
-              className="px-5 py-3 rounded-full glass-pill hover:border-white/40 text-xs font-mono-tech font-bold uppercase tracking-wider text-white flex items-center gap-2 transition-colors cursor-pointer"
-            >
-              <Upload className="w-4 h-4 text-white" />
-              <span>
-                {profile.cvPdfUrl ? 'Replace Custom CV (.PDF)' : 'Upload Your CV (.PDF)'}
-              </span>
-            </button>
-
-            <button
               onClick={handleDownloadOrPrint}
               data-cursor="DOWNLOAD CV"
               className="px-6 py-3 rounded-full bg-white hover:bg-neutral-200 text-black font-mono-tech text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer"
             >
-              {profile.cvPdfUrl ? (
-                <>
-                  <Download className="w-4 h-4 stroke-[2.5]" />
-                  <span>Download Official CV ({profile.cvFileName || 'PDF'})</span>
-                </>
-              ) : (
-                <>
-                  <Printer className="w-4 h-4 stroke-[2.5]" />
-                  <span>Export / Print Executive CV</span>
-                </>
-              )}
+              <Printer className="w-4 h-4 stroke-[2.5]" />
+              <span>Export / Print Executive CV</span>
             </button>
           </div>
         </div>
@@ -131,9 +90,6 @@ export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
                 { id: 'experience', label: '01. Experience', icon: Briefcase },
                 { id: 'skills', label: '02. Tech Arsenal', icon: Cpu },
                 { id: 'education', label: '03. Education & Awards', icon: GraduationCap },
-                ...(profile.cvPdfUrl
-                  ? [{ id: 'pdf', label: '04. Uploaded PDF Preview', icon: FileText }]
-                  : []),
               ].map((t) => {
                 const Icon = t.icon;
                 const active = activeTab === t.id;
@@ -300,31 +256,9 @@ export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
                 </SpotlightCard>
               </div>
             )}
-
-            {activeTab === 'pdf' && profile.cvPdfUrl && (
-              <SpotlightCard className="p-4 space-y-3">
-                <div className="flex items-center justify-between px-2">
-                  <span className="font-mono-tech text-xs text-white flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>UPLOADED CV: {profile.cvFileName}</span>
-                  </span>
-                  <button
-                    onClick={handleDownloadOrPrint}
-                    className="text-xs font-mono-tech text-neutral-300 underline cursor-pointer"
-                  >
-                    Download Original PDF
-                  </button>
-                </div>
-                <iframe
-                  src={profile.cvPdfUrl}
-                  title="Uploaded CV PDF"
-                  className="w-full h-[640px] rounded-2xl border border-white/10 bg-neutral-950"
-                />
-              </SpotlightCard>
-            )}
           </div>
 
-          {/* Right 5 Columns: Live Printable / Interactive A4 Executive Resume Sheet */}
+          {/* Right 5 Columns: Live Printable / Executive Resume Sheet */}
           <div className="lg:col-span-5">
             <SpotlightCard id="printable-cv-sheet" className="p-6 sm:p-8 space-y-6">
               <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-5">
@@ -411,21 +345,13 @@ export const CVDossierSection: React.FC<CVDossierSectionProps> = ({
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <button
-                  onClick={() => cvInputRef.current?.click()}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 font-mono-tech text-xs text-white flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>{profile.cvPdfUrl ? 'Update PDF File' : 'Attach Custom PDF'}</span>
-                </button>
-
+              <div className="pt-4 border-t border-white/10 flex items-center justify-end">
                 <button
                   onClick={handleDownloadOrPrint}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-mono-tech text-xs font-bold uppercase flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-mono-tech text-xs font-bold uppercase flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>{profile.cvPdfUrl ? 'Download CV PDF' : 'Print / Save PDF'}</span>
+                  <span>Download / Print CV PDF</span>
                 </button>
               </div>
             </SpotlightCard>

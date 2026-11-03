@@ -1,7 +1,6 @@
 import {
   ArrowDownRight,
   Award,
-  Box,
   FileText,
   Sparkles,
   User,
@@ -13,14 +12,12 @@ import { Spotlight, SpotlightCard } from './Spotlight';
 
 interface HeroSectionProps {
   profile: ProfileData;
-  onOpenStudio: (tab: 'identity' | '3d' | 'certificates' | 'cv') => void;
 }
 
 const DEFAULT_SPLINE_SCENE = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   profile,
-  onOpenStudio,
 }) => {
   const [stageMode, setStageMode] = useState<'spline' | 'portrait'>('spline');
 
@@ -30,7 +27,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       className="relative pt-24 pb-16 px-4 sm:px-8 flex flex-col justify-center"
     >
       <div className="max-w-7xl mx-auto w-full space-y-6 relative z-10">
-        {/* Main Spline Spotlight Card (Exact Inspiration from 615b9422-9985-43f6-8593-d7d7bc3b0be1) */}
+        {/* Main Spline Spotlight Card */}
         <div className="w-full min-h-[560px] lg:min-h-[610px] bg-black/[0.96] rounded-3xl border border-white/[0.14] relative overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.9)] flex flex-col lg:flex-row">
           {/* Volumetric White Spotlight Beam */}
           <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="white" />
@@ -91,7 +88,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             <div className="space-y-3">
-              {/* Crisp, Normal-Width, 100% Visible White-to-Silver Gradient Typography */}
               <h1 className="font-grotesk text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.08] bg-clip-text text-transparent bg-gradient-to-b from-white via-neutral-100 to-neutral-400">
                 <span className="block">{profile.name}</span>
                 <span className="block">SPATIAL WEB</span>
@@ -103,7 +99,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               {profile.subTagline}
             </p>
 
-            {/* Spaceship Action Bar (Zero Growing Elements) */}
+            {/* Spaceship Action Bar */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <a
                 href="#works"
@@ -131,14 +127,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <FileText className="w-4 h-4 text-neutral-300" />
                 <span>CV &amp; Resume</span>
               </a>
-
-              <button
-                onClick={() => onOpenStudio('3d')}
-                className="px-4 py-3.5 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/15 text-neutral-200 font-mono-tech text-xs flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <Box className="w-3.5 h-3.5 text-white" />
-                <span>Upload 3D (.GLB)</span>
-              </button>
             </div>
           </div>
 

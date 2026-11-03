@@ -7,7 +7,6 @@ import {
   Mail,
   Send,
   Sparkles,
-  Upload,
 } from 'lucide-react';
 import React, { useState } from 'react';
 import type { ProfileData } from '../types/portfolio';
@@ -15,12 +14,10 @@ import { SpotlightCard } from './Spotlight';
 
 interface ContactFooterSectionProps {
   profile: ProfileData;
-  onOpenStudio: (tab: 'identity' | '3d' | 'certificates' | 'cv') => void;
 }
 
 export const ContactFooterSection: React.FC<ContactFooterSectionProps> = ({
   profile,
-  onOpenStudio,
 }) => {
   const [copied, setCopied] = useState(false);
   const [senderName, setSenderName] = useState('');
@@ -98,14 +95,6 @@ export const ContactFooterSection: React.FC<ContactFooterSectionProps> = ({
                 ) : (
                   <Copy className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" />
                 )}
-              </button>
-
-              <button
-                onClick={() => onOpenStudio('3d')}
-                className="px-5 py-4 rounded-2xl glass-pill hover:border-white/50 text-xs font-mono-tech text-white font-bold uppercase flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <Upload className="w-4 h-4" />
-                <span>Open 3D &amp; CV Studio</span>
               </button>
             </div>
 

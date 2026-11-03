@@ -1,13 +1,11 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  Box,
   CheckCircle2,
   Layers,
   RotateCw,
   ShieldCheck,
   Sparkles,
-  Upload,
 } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
 import type { PortraitFrameStyle, Preset3DId, ProfileData } from '../types/portfolio';
@@ -18,7 +16,6 @@ gsap.registerPlugin(ScrollTrigger);
 interface Interactive3DLabSectionProps {
   profile: ProfileData;
   onUpdateProfile: (partial: Partial<ProfileData>) => void;
-  onUploadGlb: (file: File) => void;
 }
 
 const PRESETS: { id: Preset3DId; name: string; desc: string; polyCount: string }[] = [
@@ -57,11 +54,9 @@ const PRESETS: { id: Preset3DId; name: string; desc: string; polyCount: string }
 export const Interactive3DLabSection: React.FC<Interactive3DLabSectionProps> = ({
   profile,
   onUpdateProfile,
-  onUploadGlb,
 }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const manifestoRef = useRef<HTMLParagraphElement | null>(null);
-  const glbInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -96,17 +91,6 @@ export const Interactive3DLabSection: React.FC<Interactive3DLabSectionProps> = (
       ref={sectionRef}
       className="relative py-24 px-4 sm:px-8 border-t border-white/10"
     >
-      <input
-        ref={glbInputRef}
-        type="file"
-        accept=".glb,.gltf"
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) onUploadGlb(f);
-        }}
-      />
-
       <div className="max-w-7xl mx-auto space-y-16 relative z-10">
         {/* Part 1: Scroll-Scrubbed Manifesto */}
         <div className="max-w-4xl">
@@ -133,7 +117,7 @@ export const Interactive3DLabSection: React.FC<Interactive3DLabSectionProps> = (
 
         {/* Part 2: Interactive 3D Elements Control Deck + Official Portrait Card */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left 7 Cols: 3D Sculpture Switcher & Custom .GLB Dropzone */}
+          {/* Left 7 Cols: 3D Sculpture Switcher */}
           <SpotlightCard className="lg:col-span-7 p-6 sm:p-8 space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
               <div>
@@ -141,18 +125,9 @@ export const Interactive3DLabSection: React.FC<Interactive3DLabSectionProps> = (
                   REAL-TIME WEBGL SCENE CONTROLLER
                 </div>
                 <h2 className="font-grotesk text-2xl sm:text-3xl font-bold text-spline-white mt-1">
-                  3D Elements &amp; Custom .GLB Loader
+                  Interactive 3D Geometry Presets
                 </h2>
               </div>
-
-              <button
-                onClick={() => glbInputRef.current?.click()}
-                data-cursor="UPLOAD 3D"
-                className="px-4 py-2.5 rounded-full bg-white hover:bg-neutral-200 text-black font-mono-tech text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                <span>Upload 3D (.GLB / .GLTF)</span>
-              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -181,37 +156,6 @@ export const Interactive3DLabSection: React.FC<Interactive3DLabSectionProps> = (
                   </button>
                 );
               })}
-
-              {/* Custom Uploaded GLB Slot */}
-              <div
-                onClick={() => {
-                  if (profile.customModelUrl) {
-                    onUpdateProfile({ active3DPreset: 'custom-glb' });
-                  } else {
-                    glbInputRef.current?.click();
-                  }
-                }}
-                className={`p-4 rounded-2xl border border-dashed transition-colors duration-200 cursor-pointer flex flex-col justify-between ${
-                  profile.active3DPreset === 'custom-glb'
-                    ? 'bg-white/[0.1] border-white'
-                    : 'bg-white/[0.02] border-white/25 hover:border-white/50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono-tech text-[10px] uppercase tracking-widest text-neutral-300">
-                    CUSTOM .GLB / .GLTF SLOT
-                  </span>
-                  <Box className="w-4 h-4 text-white" />
-                </div>
-                <div className="font-grotesk font-bold text-base text-white mt-1">
-                  {profile.customModelName || 'Upload Your Custom 3D Model'}
-                </div>
-                <p className="text-xs text-neutral-400 mt-1">
-                  {profile.customModelUrl
-                    ? 'Custom 3D model active in memory! Click to toggle or replace.'
-                    : 'Supports any Spline / Blender / Three.js .glb or .gltf 3D asset.'}
-                </p>
-              </div>
             </div>
 
             <div className="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -253,7 +197,7 @@ export const Interactive3DLabSection: React.FC<Interactive3DLabSectionProps> = (
             </div>
           </SpotlightCard>
 
-          {/* Right 5 Cols: Official Portrait Monolith Card (No Upload Picture UI) */}
+          {/* Right 5 Cols: Official Portrait Card */}
           <SpotlightCard className="lg:col-span-5 p-6 sm:p-8 space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>

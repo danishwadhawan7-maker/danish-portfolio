@@ -5,24 +5,17 @@ import {
   CheckCircle2,
   ExternalLink,
   Eye,
-  Plus,
   ShieldCheck,
-  Sparkles,
-  Trash2,
-  Upload,
   X,
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { CertificateCategory, CertificateItem } from '../types/portfolio';
-import { fileToDataUrl } from '../utils/storage';
 import { SpotlightCard } from './Spotlight';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface CertificatesSectionProps {
   certificates: CertificateItem[];
-  onAddCertificate: (cert: CertificateItem) => void;
-  onRemoveCertificate: (id: string) => void;
 }
 
 const CATEGORIES: CertificateCategory[] = [
@@ -35,24 +28,10 @@ const CATEGORIES: CertificateCategory[] = [
 
 export const CertificatesSection: React.FC<CertificatesSectionProps> = ({
   certificates,
-  onAddCertificate,
-  onRemoveCertificate,
 }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeCategory, setActiveCategory] = useState<CertificateCategory>('All');
   const [inspectedCert, setInspectedCert] = useState<CertificateItem | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-
-  const [newTitle, setNewTitle] = useState('');
-  const [newIssuer, setNewIssuer] = useState('');
-  const [newDate, setNewDate] = useState('2026');
-  const [newCredId, setNewCredId] = useState('');
-  const [newCategory, setNewCategory] =
-    useState<Exclude<CertificateCategory, 'All'>>('Cloud & AI');
-  const [newSkills, setNewSkills] = useState('Three.js, Cloud Architecture, TypeScript');
-  const [newVerifyUrl, setNewVerifyUrl] = useState('https://');
-  const [newImageUrl, setNewImageUrl] = useState<string>('');
-  const certFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const filteredCerts =
     activeCategory === 'All'
@@ -82,54 +61,6 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({
     return () => ctx.revert();
   }, [activeCategory, certificates.length]);
 
-  const handleCertImageUpload = async (file: File) => {
-    const dataUrl = await fileToDataUrl(file);
-    setNewImageUrl(dataUrl);
-  };
-
-  const handleCreateCert = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle.trim() || !newIssuer.trim()) return;
-
-    const fallbackSvg = `data:image/svg+xml;utf8,${encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" width="800" height="560">
-        <rect width="800" height="560" rx="20" fill="#09090B" />
-        <rect x="24" y="24" width="752" height="512" rx="14" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" />
-        <text x="72" y="110" fill="#D4D4D8" font-family="monospace" font-size="15" letter-spacing="4">VERIFIED CERTIFICATE // ${newIssuer.toUpperCase()}</text>
-        <text x="72" y="230" fill="#FFFFFF" font-family="sans-serif" font-size="40" font-weight="bold">DANISH</text>
-        <text x="72" y="310" fill="#E4E4E7" font-family="sans-serif" font-size="25" font-weight="bold">${newTitle}</text>
-        <text x="72" y="450" fill="#A1A1AA" font-family="monospace" font-size="14">ID: ${newCredId || 'VERIFIED-2026'} // ISSUED: ${newDate}</text>
-      </svg>
-    `)}`;
-
-    const created: CertificateItem = {
-      id: `cert-custom-${Date.now()}`,
-      title: newTitle.trim(),
-      issuer: newIssuer.trim(),
-      issuerLogoText: newIssuer.trim().slice(0, 4).toUpperCase(),
-      issueDate: newDate.trim() || '2026',
-      credentialId: newCredId.trim() || `DN-${Math.floor(10000 + Math.random() * 90000)}`,
-      verifyUrl: newVerifyUrl.trim() || '#',
-      category: newCategory,
-      skills: newSkills
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean),
-      accentColor: '#FFFFFF',
-      imageUrl: newImageUrl || fallbackSvg,
-      description: `Official certification issued by ${newIssuer.trim()} validating advanced proficiency in ${newTitle.trim()}.`,
-      verified: true,
-      isCustomUploaded: true,
-    };
-
-    onAddCertificate(created);
-    setNewTitle('');
-    setNewIssuer('');
-    setNewCredId('');
-    setNewImageUrl('');
-    setShowAddModal(false);
-  };
-
   return (
     <section
       id="certificates"
@@ -137,7 +68,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({
       className="relative py-24 px-4 sm:px-8 border-t border-white/10"
     >
       <div className="max-w-7xl mx-auto relative z-10 space-y-10">
-        {/* Section Header + Add Certificate Action */}
+        {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div>
             <div className="font-mono-tech text-xs uppercase tracking-[0.28em] text-neutral-400 flex items-center gap-2">
@@ -147,17 +78,6 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({
             <h2 className="font-grotesk text-4xl sm:text-5xl font-bold text-spline-white tracking-tight mt-2">
               CERTIFICATES &amp; HONORS
             </h2>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setShowAddModal(true)}
-              data-cursor="ADD CERT"
-              className="px-5 py-3 rounded-full bg-white hover:bg-neutral-200 text-black font-mono-tech text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Upload / Add Certificate</span>
-            </button>
           </div>
         </div>
 
@@ -238,19 +158,6 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({
                         </span>
                       ))}
                     </div>
-
-                    {cert.isCustomUploaded && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRemoveCertificate(cert.id);
-                        }}
-                        title="Delete Certificate"
-                        className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
                   </div>
                 </div>
               </SpotlightCard>
@@ -338,190 +245,6 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Upload / Add New Certificate Modal */}
-      {showAddModal && (
-        <div
-          className="fixed inset-0 z-[210] bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6"
-          onClick={() => setShowAddModal(false)}
-        >
-          <form
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={handleCreateCert}
-            className="glass-monolith max-w-xl w-full rounded-3xl border border-white/25 p-6 sm:p-8 space-y-5 max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div>
-                <div className="font-mono-tech text-[11px] text-neutral-400 uppercase tracking-widest">
-                  VAULT UPLOADER
-                </div>
-                <h3 className="font-grotesk text-2xl font-bold text-spline-white">
-                  Add / Upload Certificate
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="w-9 h-9 rounded-full bg-white/5 border border-white/15 flex items-center justify-center text-neutral-300 hover:text-white cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <input
-              ref={certFileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleCertImageUpload(f);
-              }}
-            />
-
-            <div
-              onClick={() => certFileInputRef.current?.click()}
-              className="cursor-pointer rounded-2xl border border-dashed border-white/30 hover:border-white bg-white/[0.03] p-5 text-center space-y-2 transition-colors"
-            >
-              {newImageUrl ? (
-                <img
-                  src={newImageUrl}
-                  alt="Preview"
-                  className="max-h-40 mx-auto rounded-xl object-contain"
-                />
-              ) : (
-                <>
-                  <Upload className="w-7 h-7 text-white mx-auto" />
-                  <div className="font-mono-tech text-xs font-bold text-white">
-                    Click to Upload Certificate Image (PNG / JPG / WEBP)
-                  </div>
-                  <div className="text-[11px] text-neutral-400">
-                    Or leave blank to auto-generate a monochrome SHA-256 certificate card!
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                  Certificate Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. AWS Solutions Architect"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:border-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                  Issuing Organization *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Amazon Web Services"
-                  value={newIssuer}
-                  onChange={(e) => setNewIssuer(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:border-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                  Category
-                </label>
-                <select
-                  value={newCategory}
-                  onChange={(e) =>
-                    setNewCategory(e.target.value as Exclude<CertificateCategory, 'All'>)
-                  }
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-neutral-950 border border-white/15 text-sm text-white focus:border-white outline-none"
-                >
-                  <option value="Cloud & AI">Cloud &amp; AI</option>
-                  <option value="Full-Stack & WebGL">Full-Stack &amp; WebGL</option>
-                  <option value="UI/UX & Product">UI/UX &amp; Product</option>
-                  <option value="Cybersecurity & Architecture">
-                    Cybersecurity &amp; Architecture
-                  </option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                  Issue Year / Date
-                </label>
-                <input
-                  type="text"
-                  placeholder="2026"
-                  value={newDate}
-                  onChange={(e) => setNewDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:border-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                  Credential ID
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. CERT-99281-DN"
-                  value={newCredId}
-                  onChange={(e) => setNewCredId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:border-white outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                  Verification URL
-                </label>
-                <input
-                  type="text"
-                  placeholder="https://..."
-                  value={newVerifyUrl}
-                  onChange={(e) => setNewVerifyUrl(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:border-white outline-none"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-mono-tech uppercase text-neutral-400 mb-1">
-                Skills Validated (Comma separated)
-              </label>
-              <input
-                type="text"
-                value={newSkills}
-                onChange={(e) => setNewSkills(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/15 text-sm text-white focus:border-white outline-none"
-              />
-            </div>
-
-            <div className="pt-3 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setShowAddModal(false)}
-                className="px-4 py-2.5 rounded-xl glass-pill text-xs font-mono-tech text-neutral-300 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-mono-tech text-xs font-bold uppercase flex items-center gap-1.5 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Save to Vault</span>
-              </button>
-            </div>
-          </form>
         </div>
       )}
     </section>
